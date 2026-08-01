@@ -1,6 +1,29 @@
 import re
 import pandas as pd
-log_data = [
+
+
+def analyze_logs_from_file(file_path):
+  parsed_logs = [] 
+    
+    with open(file_path, 'r') as file:
+    logs = file.readlines()
+
+  for log in logs:
+    match = re.match(r'\(.*?\)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
+    if match:
+      timestamp, status, message = match.groups()
+      parsed_logs.append({
+          'TIMESTAMP': timestamp,
+          'STATUS': status,
+          'MESSAGE': message,
+      })
+
+  return pd.DataFrame(parsed_logs)
+
+
+# server.log 
+df = analyze_logs_from_file('server.log')
+print(df)
     "2026-08-01 10:00:01 - INFO - Authentication success for user admin from IP 192.168.1.5",
     "2026-08-01 10:05:22 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Invalid credentials",
     "2026-08-01 10:12:45 - INFO - Password policy updated by admin",
