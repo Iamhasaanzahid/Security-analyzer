@@ -23,5 +23,12 @@ def analyze_logs_from_file(file_path):
             
     return pd.DataFrame(parsed_logs)
 
+def filter_security_alerts(df):
+    alerts = df[df['STATUS'].isin(['ERROR', 'WARN'])]
+    return alerts
+
 df = analyze_logs_from_file('server.log')
-print(df)
+alerts_df = filter_security_alerts(df)
+
+print("=== SECURITY ALERTS & ERRORS ONLY ===")
+print(alerts_df)
