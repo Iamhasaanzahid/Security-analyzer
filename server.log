@@ -1,0 +1,10 @@
+2026-08-01 10:00:01 - INFO - Authentication success for user admin from IP 192.168.1.5.
+2026-08-01 10:05:22 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Invalid credentials.
+2026-08-01 10:12:45 - INFO - Password policy updated by admin.
+2026-08-01 11:30:10 - WARN - Unusual access pattern detected for user johndoe from IP 198.51.100.22.
+2026-08-01 12:45:33 - INFO - User johndoe logged out.
+2026-08-01 13:02:11 - ERROR - Unauthorized access attempt to /admin directory from IP 203.0.113.88.
+2026-08-01 14:15:20 - INFO - System backup completed successfully.
+2026-08-01 15:22:40 - ERROR - Failed login attempt for user guest from IP 192.168.1.100 - Account locked.
+2026-08-01 16:00:15 - INFO - Database optimization started.
+2026-08-01 16:45:00 - INFO - Database optimization completed.
