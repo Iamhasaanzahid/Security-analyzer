@@ -20,8 +20,6 @@ log_data = [
     "2026-08-01 22:30:45 - INFO - Daily security scan completed with zero threats found",
     "2026-08-01 23:55:00 - INFO - System status check - Normal"
 ]
-
-
 def analyze_logs(logs):
     parsed_logs = []
     for log in logs:
@@ -33,5 +31,3 @@ def analyze_logs(logs):
 
 df = analyze_logs(log_data)
 print(df)
-
-```
