@@ -8,7 +8,7 @@ def analyze_logs_from_file(file_path):
         logs = file.readlines()
         
     for log in logs:
-        match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
+        match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', pd.set_optionlog.strip())
         if match:
             timestamp, status, message = match.groups()
             parsed_logs.append({
@@ -20,5 +20,5 @@ def analyze_logs_from_file(file_path):
     return pd.DataFrame(parsed_logs)
 
 df = analyze_logs_from_file('server.log')
-print(df) 
 pd.set_option
+print(df)
