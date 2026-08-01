@@ -1,7 +1,6 @@
 import re
 import pandas as pd
-
-```log_data = [
+log_data = [
     "2026-08-01 10:00:01 - INFO - Authentication success for user admin from IP 192.168.1.5",
     "2026-08-01 10:05:22 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Invalid credentials",
     "2026-08-01 10:12:45 - INFO - Password policy updated by admin",
