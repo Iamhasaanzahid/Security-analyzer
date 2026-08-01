@@ -21,4 +21,3 @@ def analyze_logs_from_file(file_path):
 
 df = analyze_logs_from_file('server.log')
 print(df) 
-2 
