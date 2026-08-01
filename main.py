@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import matplotlib.pyplot as plt
 
 pd.set_option('display.max_rows', None)
 pd.set_option('display.max_colwidth', None)
@@ -62,6 +63,24 @@ def save_advanced_report(summary, alerts_df, brute_force_ips, output_file='secur
         file.write(alerts_df.to_string())
         file.write("\n")
 
+def generate_log_chart(summary, chart_file='log_summary_chart.png'):
+    plt.figure(figsize=(8, 5))
+    colors = ['#2ecc71' if x == 'INFO' else '#f39c12' if x == 'WARN' else '#e74c3c' for x in summary.index]
+    
+    plt.bar(summary.index, summary.values, color=colors)
+    plt.title('Log Status Distribution Summary', fontsize=14, fontweight='bold')
+    plt.xlabel('Log Level Status', fontsize=12)
+    plt.ylabel('Event Count', fontsize=12)
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    for i, value in enumerate(summary.values):
+        plt.text(i, value + 0.5, str(value), ha='center', fontweight='bold')
+        
+    plt.tight_layout()
+    plt.savefig(chart_file)
+    plt.close()
+
+# --- MAIN EXECUTION ---
 df = analyze_logs_from_file('server.log')
 
 summary = generate_log_summary(df)
@@ -83,4 +102,7 @@ print("=== SECURITY ALERTS & ERRORS ONLY ===")
 print(alerts_df)
 
 save_advanced_report(summary, alerts_df, brute_force_ips)
-print("\n[+] Advanced Security Report successfully saved to 'security_report.txt'")
+generate_log_chart(summary)
+
+print("\n[+] Advanced Security Report saved to 'security_report.txt'")
+print("[+] Log Summary Chart generated and saved to 'log_summary_chart.png'")
