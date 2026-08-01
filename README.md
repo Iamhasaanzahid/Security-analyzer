@@ -1,15 +1,16 @@
-# 🛡️ Automated Log Security Analyzer
+# 🛡️ Automated Log Security & Threat Analyzer
 
-A lightweight Python-based Log Security Analyzer designed to parse server log files, detect potential cyber security threats (such as Brute Force attempts, Unauthorized Access, SQL Injection, DDoS, and System Errors), summarize log metrics, and generate automated security reporting.
+A high-performance Python-based Log Security Analyzer designed for SOC Analysts and Security Engineers. It parses raw server log files, extracts IP addresses, identifies critical threat patterns (such as Brute Force attempts and Unauthorized Access), generates statistical log summaries, and exports comprehensive security reports alongside visual metrics.
 
 ---
 
-## 🚀 Features
+## 🚀 Key Features
 
-- **Log Parsing:** Extracts Timestamps, Status Levels (`INFO`, `WARN`, `ERROR`), and Event Messages using Regular Expressions (`re`).
-- **Threat Detection & Filtering:** Isolates critical security events and warnings (`ERROR` & `WARN`) for fast incident response.
-- **Log Summary Counter:** Provides an aggregated count of log types using `pandas`.
-- **Automated Reporting:** Exports cleanly formatted security audit reports directly to a text file (`security_report.txt`).
+- **Log Parsing & Regex Matching:** Extracts Timestamps, Status Levels (`INFO`, `WARN`, `ERROR`), IP Addresses, and Event Messages using Regular Expressions (`re`).
+- **Brute Force & Threat Detection:** Tracks suspicious IP addresses making repeated failed attempts and triggers thresholds for Brute Force identification.
+- **Visual Data Analytics:** Automatically generates a color-coded bar chart (`log_summary_chart.png`) visualizing log event distributions.
+- **Incident Filtering:** Isolates critical security events (`ERROR` & `WARN`) for accelerated incident response.
+- **Automated Security Reporting:** Saves neatly formatted security audit summaries directly into `security_report.txt`.
 
 ---
 
@@ -17,8 +18,9 @@ A lightweight Python-based Log Security Analyzer designed to parse server log fi
 
 - **Language:** Python 3.x
 - **Libraries:**
-  - `pandas` (Data Analysis & Manipulation)
-  - `re` (Regex for Pattern Matching)
+  - `pandas` (Data Processing & Structuring)
+  - `matplotlib` (Data Visualization & Charting)
+  - `re` (Regular Expression Pattern Matching)
 
 ---
 
@@ -26,7 +28,8 @@ A lightweight Python-based Log Security Analyzer designed to parse server log fi
 
 ```text
 security-analyzer/
-├── main.py              # Main Python script for parsing and analyzing logs
-├── server.log           # Raw sample server logs containing multi-day security events
-├── security_report.txt  # Auto-generated security analysis report
-└── README.md            # Project documentation
+├── main.py                 # Main Python engine (Parser, Threat Detector & Reporter)
+├── server.log              # Raw server log dataset
+├── security_report.txt     # Auto-generated security report
+├── log_summary_chart.png   # Auto-generated visual metrics chart
+└── README.md               # Comprehensive project documentation
