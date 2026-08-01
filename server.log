@@ -1,5 +1,7 @@
 2026-08-01 10:00:01 - INFO - Authentication success for user admin from IP 192.168.1.5.
 2026-08-01 10:05:22 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Invalid credentials.
+2026-08-01 10:05:25 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Invalid credentials.
+2026-08-01 10:05:28 - ERROR - Failed login attempt for user root from IP 203.0.113.45 - Account locked.
 2026-08-01 10:12:45 - INFO - Password policy updated by admin.
 2026-08-01 11:30:10 - WARN - Unusual access pattern detected for user johndoe from IP 198.51.100.22.
 2026-08-01 12:45:33 - INFO - User johndoe logged out.
@@ -7,4 +9,84 @@
 2026-08-01 14:15:20 - INFO - System backup completed successfully.
 2026-08-01 15:22:40 - ERROR - Failed login attempt for user guest from IP 192.168.1.100 - Account locked.
 2026-08-01 16:00:15 - INFO - Database optimization started.
-2026-08-01 16:45:00 - INFO - Database optimization completed.
+2026-08-01 16:45:00 - INFO - Database optimization completed successfully.
+2026-08-01 17:10:05 - WARN - High memory usage detected on server node 3 (CPU > 88%).
+2026-08-01 18:00:00 - INFO - Scheduled maintenance window opened.
+2026-08-01 19:30:00 - INFO - Scheduled maintenance window closed.
+2026-08-01 20:05:12 - ERROR - Critical - SSL certificate expired on web-server-1.
+2026-08-01 21:15:30 - INFO - SSL certificate renewed and applied successfully.
+2026-08-01 22:00:00 - INFO - Daily security scan initiated.
+2026-08-01 22:30:45 - INFO - Daily security scan completed with zero threats found.
+2026-08-01 23:55:00 - INFO - System status check - Normal.
+2026-08-02 00:10:15 - WARN - Firewall blocked incoming connection from blacklisted IP 45.33.21.9.
+2026-08-02 00:25:40 - ERROR - Port scan attack detected from IP 185.220.101.5.
+2026-08-02 01:00:00 - INFO - Automated threat analysis completed.
+2026-08-02 02:14:02 - WARN - Multiple HTTP 404 errors detected from IP 104.28.15.2.
+2026-08-02 03:30:11 - ERROR - SQL Injection payload blocked in request parameter 'id' from IP 198.51.100.99.
+2026-08-02 04:00:00 - INFO - System automated patch cleanup completed.
+2026-08-02 05:12:44 - WARN - Disk space utilization reached 85% on /dev/sda1.
+2026-08-02 06:00:10 - INFO - User hassan logged in from IP 192.168.1.12.
+2026-08-02 07:18:22 - ERROR - Suspicious file upload attempt detected (.exe extension blocked).
+2026-08-02 08:00:00 - INFO - Antivirus definitions updated to version 2026.08.02.
+2026-08-02 09:10:33 - WARN - High network bandwidth consumption detected on interface eth0.
+2026-08-02 10:25:15 - ERROR - DDoS attack mitigation triggered for port 80/tcp.
+2026-08-02 11:00:00 - INFO - DDoS attack traffic successfully scrubbed.
+2026-08-02 11:15:22 - INFO - SSH session established for user operator from IP 10.0.0.15.
+2026-08-02 11:30:05 - WARN - Deprecated API endpoint accessed by client 172.16.0.44.
+2026-08-02 11:45:00 - INFO - Firewall rules updated by system admin.
+2026-08-02 12:00:10 - ERROR - Connection timeout to payment gateway API.
+2026-08-02 12:05:11 - INFO - Payment gateway API connection re-established.
+2026-08-02 12:20:45 - WARN - CPU temperature warning on hardware node 02.
+2026-08-02 12:35:00 - INFO - Server cooling fan speed increased automatically.
+2026-08-02 12:50:18 - ERROR - Invalid OAuth token provided by external service.
+2026-08-02 13:10:02 - INFO - User hassan logged out successfully.
+2026-08-02 13:30:40 - WARN - Rate limit exceeded for API key 'dev_test_98'.
+2026-08-02 14:00:00 - INFO - Scheduled database backup started.
+2026-08-02 14:25:30 - INFO - Scheduled database backup completed.
+2026-08-02 14:40:12 - ERROR - Failed SSH authentication attempt for user admin from IP 185.156.177.3.
+2026-08-02 14:40:15 - ERROR - Failed SSH authentication attempt for user admin from IP 185.156.177.3.
+2026-08-02 14:40:18 - ERROR - Failed SSH authentication attempt for user admin from IP 185.156.177.3.
+2026-08-02 14:40:20 - WARN - IP 185.156.177.3 automatically blocked by Fail2Ban.
+2026-08-02 15:00:05 - INFO - Kernel security module loaded.
+2026-08-02 15:20:11 - WARN - High disk I/O latency observed on volume storage-1.
+2026-08-02 15:45:30 - ERROR - DNS lookup failure for external logging server.
+2026-08-02 16:00:00 - INFO - Primary DNS server restored.
+2026-08-02 16:15:22 - INFO - New user registration from IP 192.168.1.55.
+2026-08-02 16:30:10 - WARN - Session duration limit reached for user guest.
+2026-08-02 17:00:00 - INFO - Security audit report generation started.
+2026-08-02 17:10:00 - INFO - Security audit report successfully saved.
+2026-08-02 17:35:12 - ERROR - Cross-Site Scripting (XSS) attempt detected in comment form.
+2026-08-02 17:35:13 - WARN - Request payload sanitized automatically.
+2026-08-02 18:00:00 - INFO - System health check - All parameters nominal.
+2026-08-02 18:25:44 - ERROR - Database connection pool exhausted.
+2026-08-02 18:26:00 - INFO - Additional database connections allocated.
+2026-08-02 19:00:15 - WARN - Certificate expiration notice: 15 days remaining for domain.com.
+2026-08-02 19:30:20 - INFO - Web application firewall rules refreshed.
+2026-08-02 20:00:00 - INFO - Hourly traffic summary: 45000 requests processed.
+2026-08-02 20:15:10 - ERROR - Unauthorized root privilege escalation attempt blocked.
+2026-08-02 20:15:12 - WARN - Security team alerted regarding privilege escalation event.
+2026-08-02 20:40:33 - INFO - User manager1 updated access permissions.
+2026-08-02 21:00:00 - INFO - Automated system health telemetry sent to SOC.
+2026-08-02 21:20:18 - ERROR - File integrity monitoring alert: /etc/passwd modified.
+2026-08-02 21:20:25 - INFO - Integrity check confirmed modification was authorized by sysadmin.
+2026-08-02 21:45:00 - WARN - High memory footprint on process 'analytics-engine'.
+2026-08-02 22:00:10 - INFO - Analytics engine process restarted successfully.
+2026-08-02 22:25:40 - ERROR - FTP service unexpected shutdown.
+2026-08-02 22:25:45 - INFO - FTP service auto-recovery service triggered.
+2026-08-02 22:25:50 - INFO - FTP service back online.
+2026-08-02 22:50:00 - WARN - Outbound ICMP flooding attempt detected from container c_8812.
+2026-08-02 22:50:05 - ERROR - Container c_8812 isolated from network.
+2026-08-02 23:15:10 - INFO - Routine log rotation performed.
+2026-08-02 23:30:00 - INFO - Nightly security compliance scan launched.
+2026-08-02 23:45:12 - WARN - Compliance check: Unused service 'telnet' is active.
+2026-08-02 23:45:20 - INFO - Telnet service disabled by compliance policy.
+2026-08-02 23:59:59 - INFO - End of day log summary compiled.
+2026-08-03 00:00:01 - INFO - New log session initialized.
+2026-08-03 00:15:20 - WARN - Unregistered device attempted connection on VPN.
+2026-08-03 00:30:11 - ERROR - LDAP directory service failed to respond.
+2026-08-03 00:30:25 - INFO - Secondary LDAP failover node engaged.
+2026-08-03 01:00:00 - INFO - System integrity status: Green.
+2026-08-03 01:25:40 - WARN - Elevated HTTP error rate (5xx series) detected.
+2026-08-03 01:40:15 - ERROR - Microservice 'auth-service' unresponsive.
+2026-08-03 01:40:22 - INFO - Microservice 'auth-service' container restarted.
+2026-08-03 02:00:00 - INFO - System health check completed successfully.
