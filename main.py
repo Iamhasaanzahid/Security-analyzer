@@ -1,6 +1,10 @@
 import re
 import pandas as pd
 
+# Pandas Output Settings
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_colwidth', None)
+
 def analyze_logs_from_file(file_path):
     parsed_logs = []
     
@@ -8,7 +12,7 @@ def analyze_logs_from_file(file_path):
         logs = file.readlines()
         
     for log in logs:
-        match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', pd.set_optionlog.strip())
+        match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
         if match:
             timestamp, status, message = match.groups()
             parsed_logs.append({
@@ -20,5 +24,4 @@ def analyze_logs_from_file(file_path):
     return pd.DataFrame(parsed_logs)
 
 df = analyze_logs_from_file('server.log')
-pd.set_option
 print(df)
