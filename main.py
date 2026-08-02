@@ -1,4 +1,5 @@
 import re
+import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
@@ -11,6 +12,25 @@ st.title("🛡️ Security Log & Threat Analyzer Dashboard")
 st.markdown("Upload your server log files below to analyze security events, detect brute-force attempts, and generate visual threat intelligence.")
 
 # --- CORE LOGIC FUNCTIONS ---
+
+@st.cache_data(ttl=3600)
+def get_ip_location_details(ip):
+    """Fetch country, city, and ISP for public IPs using IP-API."""
+    if ip.startswith(('192.168.', '10.', '172.16.', '127.')) or ip == 'N/A':
+        return "Local/Private IP", "Local", "Internal Network"
+    try:
+        # Fetching Country, City, and ISP details
+        response = requests.get(f"http://ip-api.com/json/{ip}?fields=country,city,isp", timeout=3)
+        if response.status_code == 200:
+            data = response.json()
+            country = data.get('country', 'Unknown')
+            city = data.get('city', 'Unknown')
+            isp = data.get('isp', 'Unknown')
+            return country, city, isp
+    except Exception:
+        pass
+    return "Unknown", "Unknown", "Unknown"
+
 def parse_logs_from_content(log_lines):
     parsed_logs = []
     for log in log_lines:
@@ -33,21 +53,31 @@ def parse_logs_from_content(log_lines):
     return pd.DataFrame(parsed_logs)
 
 def filter_security_alerts(df):
-    # Detect ERROR, WARN, and FAILED status logs
     return df[df['STATUS'].isin(['ERROR', 'WARN', 'FAILED LOGIN', 'FAILED'])]
 
 def generate_log_summary(df):
     return df['STATUS'].value_counts()
 
 def detect_brute_force(df):
-    # Detect Brute Force on ERROR or FAILED LOGIN
     failed_df = df[df['STATUS'].isin(['ERROR', 'FAILED LOGIN', 'FAILED'])]
     ip_counts = failed_df['IP_ADDRESS'].value_counts()
     
-    # Filter out N/A IPs and detect IPs with 2 or more failed attempts
     ip_counts = ip_counts[ip_counts.index != 'N/A']
     suspicious_ips = ip_counts[ip_counts >= 2]
-    return suspicious_ips
+    
+    if not suspicious_ips.empty:
+        bf_df = suspicious_ips.reset_index()
+        bf_df.columns = ['IP Address', 'Failed Attempts']
+        
+        # Add Country, City, and ISP details
+        location_data = bf_df['IP Address'].apply(get_ip_location_details)
+        bf_df['Country'] = [loc[0] for loc in location_data]
+        bf_df['City'] = [loc[1] for loc in location_data]
+        bf_df['ISP / Host'] = [loc[2] for loc in location_data]
+        
+        return bf_df
+        
+    return pd.DataFrame()
 
 # --- STREAMLIT UI LAYOUT ---
 
@@ -56,7 +86,6 @@ st.sidebar.header("📂 Upload Log File")
 uploaded_file = st.sidebar.file_uploader("Choose a .log or .txt file", type=["log", "txt"])
 
 if uploaded_file is not None:
-    # Read uploaded file
     file_contents = uploaded_file.getvalue().decode("utf-8").splitlines()
     df = parse_logs_from_content(file_contents)
 
@@ -80,7 +109,6 @@ if uploaded_file is not None:
             st.subheader("📊 Log Status Distribution")
             fig, ax = plt.subplots(figsize=(6, 4))
             
-            # Dynamic colors for chart
             colors = []
             for status in summary.index:
                 if status in ['ERROR', 'FAILED LOGIN', 'FAILED']:
@@ -104,9 +132,7 @@ if uploaded_file is not None:
             st.subheader("🚨 Brute Force Detection")
             if not brute_force_ips.empty:
                 st.error("🚨 Warning: Multiple Failed Logins / Errors Detected!")
-                bf_df = brute_force_ips.reset_index()
-                bf_df.columns = ['IP Address', 'Failed Attempts']
-                st.dataframe(bf_df, use_container_width=True)
+                st.dataframe(brute_force_ips, use_container_width=True)
             else:
                 st.success("No suspicious Brute Force activity detected.")
 
