@@ -19,7 +19,6 @@ def get_ip_location_details(ip):
     if ip.startswith(('192.168.', '10.', '172.16.', '127.')) or ip == 'N/A':
         return "Local/Private IP", "Local", "Internal Network"
     try:
-        # Fetching Country, City, and ISP details
         response = requests.get(f"http://ip-api.com/json/{ip}?fields=country,city,isp", timeout=3)
         if response.status_code == 200:
             data = response.json()
@@ -37,7 +36,6 @@ def parse_logs_from_content(log_lines):
         if not log.strip():
             continue
             
-        # Flexible Regex Matching
         match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
         if match:
             timestamp, status, message = match.groups()
@@ -69,7 +67,6 @@ def detect_brute_force(df):
         bf_df = suspicious_ips.reset_index()
         bf_df.columns = ['IP Address', 'Failed Attempts']
         
-        # Add Country, City, and ISP details
         location_data = bf_df['IP Address'].apply(get_ip_location_details)
         bf_df['Country'] = [loc[0] for loc in location_data]
         bf_df['City'] = [loc[1] for loc in location_data]
@@ -78,6 +75,10 @@ def detect_brute_force(df):
         return bf_df
         
     return pd.DataFrame()
+
+# Helper function to convert DataFrames to CSV
+def convert_df_to_csv(df):
+    return df.to_csv(index=False).encode('utf-8')
 
 # --- STREAMLIT UI LAYOUT ---
 
@@ -133,6 +134,15 @@ if uploaded_file is not None:
             if not brute_force_ips.empty:
                 st.error("🚨 Warning: Multiple Failed Logins / Errors Detected!")
                 st.dataframe(brute_force_ips, use_container_width=True)
+                
+                # Download CSV Button for Brute Force Threat Report
+                bf_csv = convert_df_to_csv(brute_force_ips)
+                st.download_button(
+                    label="📥 Download Threat Report (CSV)",
+                    data=bf_csv,
+                    file_name="brute_force_threats.csv",
+                    mime="text/csv"
+                )
             else:
                 st.success("No suspicious Brute Force activity detected.")
 
@@ -142,12 +152,30 @@ if uploaded_file is not None:
         st.subheader("⚠️ Security Alerts & Error Logs")
         if not alerts_df.empty:
             st.dataframe(alerts_df, use_container_width=True)
+            
+            # Download CSV Button for Security Alerts
+            alerts_csv = convert_df_to_csv(alerts_df)
+            st.download_button(
+                label="📥 Download All Security Alerts (CSV)",
+                data=alerts_csv,
+                file_name="security_alerts_report.csv",
+                mime="text/csv"
+            )
         else:
             st.info("No ERROR, WARN or FAILED status logs found.")
 
         # Complete Parsed Logs View
         with st.expander("🔍 View Full Parsed Log Data"):
             st.dataframe(df, use_container_width=True)
+            
+            # Download CSV Button for Full Log Data
+            full_csv = convert_df_to_csv(df)
+            st.download_button(
+                label="📥 Download Full Parsed Log Data (CSV)",
+                data=full_csv,
+                file_name="full_parsed_logs.csv",
+                mime="text/csv"
+            )
 
     else:
         st.warning("Could not parse any valid logs. Please check the log file format.")
