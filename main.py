@@ -14,6 +14,10 @@ st.markdown("Upload your server log files below to analyze security events, dete
 def parse_logs_from_content(log_lines):
     parsed_logs = []
     for log in log_lines:
+        if not log.strip():
+            continue
+            
+        # Flexible Regex Matching
         match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
         if match:
             timestamp, status, message = match.groups()
@@ -21,22 +25,27 @@ def parse_logs_from_content(log_lines):
             ip_address = ip_match.group(1) if ip_match else "N/A"
             
             parsed_logs.append({
-                'TIMESTAMP': timestamp,
-                'STATUS': status,
+                'TIMESTAMP': timestamp.strip(),
+                'STATUS': status.strip().upper(),
                 'IP_ADDRESS': ip_address,
-                'MESSAGE': message
+                'MESSAGE': message.strip()
             })
     return pd.DataFrame(parsed_logs)
 
 def filter_security_alerts(df):
-    return df[df['STATUS'].isin(['ERROR', 'WARN'])]
+    # Detect ERROR, WARN, and FAILED status logs
+    return df[df['STATUS'].isin(['ERROR', 'WARN', 'FAILED LOGIN', 'FAILED'])]
 
 def generate_log_summary(df):
     return df['STATUS'].value_counts()
 
 def detect_brute_force(df):
-    errors_df = df[df['STATUS'] == 'ERROR']
-    ip_counts = errors_df['IP_ADDRESS'].value_counts()
+    # Detect Brute Force on ERROR or FAILED LOGIN
+    failed_df = df[df['STATUS'].isin(['ERROR', 'FAILED LOGIN', 'FAILED'])]
+    ip_counts = failed_df['IP_ADDRESS'].value_counts()
+    
+    # Filter out N/A IPs and detect IPs with 2 or more failed attempts
+    ip_counts = ip_counts[ip_counts.index != 'N/A']
     suspicious_ips = ip_counts[ip_counts >= 2]
     return suspicious_ips
 
@@ -59,7 +68,7 @@ if uploaded_file is not None:
         # Top Metrics Section
         col1, col2, col3 = st.columns(3)
         col1.metric("Total Events Logged", len(df))
-        col2.metric("Security Alerts (ERROR/WARN)", len(alerts_df))
+        col2.metric("Security Alerts (ERROR/WARN/FAILED)", len(alerts_df))
         col3.metric("Suspicious IPs Detected", len(brute_force_ips))
 
         st.markdown("---")
@@ -70,7 +79,17 @@ if uploaded_file is not None:
         with left_col:
             st.subheader("📊 Log Status Distribution")
             fig, ax = plt.subplots(figsize=(6, 4))
-            colors = ['#2ecc71' if x == 'INFO' else '#f39c12' if x == 'WARN' else '#e74c3c' for x in summary.index]
+            
+            # Dynamic colors for chart
+            colors = []
+            for status in summary.index:
+                if status in ['ERROR', 'FAILED LOGIN', 'FAILED']:
+                    colors.append('#e74c3c') # Red
+                elif status == 'WARN':
+                    colors.append('#f39c12') # Orange
+                else:
+                    colors.append('#2ecc71') # Green
+                    
             ax.bar(summary.index, summary.values, color=colors)
             ax.set_title('Log Status Summary', fontsize=12, fontweight='bold')
             ax.set_ylabel('Event Count')
@@ -84,7 +103,7 @@ if uploaded_file is not None:
         with right_col:
             st.subheader("🚨 Brute Force Detection")
             if not brute_force_ips.empty:
-                st.error("Warning: Multiple Failed Logins Detected!")
+                st.error("🚨 Warning: Multiple Failed Logins / Errors Detected!")
                 bf_df = brute_force_ips.reset_index()
                 bf_df.columns = ['IP Address', 'Failed Attempts']
                 st.dataframe(bf_df, use_container_width=True)
@@ -98,7 +117,7 @@ if uploaded_file is not None:
         if not alerts_df.empty:
             st.dataframe(alerts_df, use_container_width=True)
         else:
-            st.info("No ERROR or WARN status logs found.")
+            st.info("No ERROR, WARN or FAILED status logs found.")
 
         # Complete Parsed Logs View
         with st.expander("🔍 View Full Parsed Log Data"):
