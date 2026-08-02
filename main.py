@@ -1,21 +1,22 @@
 import re
 import pandas as pd
 import matplotlib.pyplot as plt
+import streamlit as st
 
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_colwidth', None)
+# Streamlit Page Setup
+st.set_page_config(page_title="Security Log & Threat Analyzer", layout="wide", page_icon="🛡️")
 
-def analyze_logs_from_file(file_path):
+# Title and Description
+st.title("🛡️ Security Log & Threat Analyzer Dashboard")
+st.markdown("Upload your server log files below to analyze security events, detect brute-force attempts, and generate visual threat intelligence.")
+
+# --- CORE LOGIC FUNCTIONS ---
+def parse_logs_from_content(log_lines):
     parsed_logs = []
-    
-    with open(file_path, 'r') as file:
-        logs = file.readlines()
-        
-    for log in logs:
+    for log in log_lines:
         match = re.match(r'(.*?)\s+-\s+(.*?)\s+-\s+(.*)', log.strip())
         if match:
             timestamp, status, message = match.groups()
-            
             ip_match = re.search(r'IP\s+([0-9\.]+)', message)
             ip_address = ip_match.group(1) if ip_match else "N/A"
             
@@ -25,16 +26,13 @@ def analyze_logs_from_file(file_path):
                 'IP_ADDRESS': ip_address,
                 'MESSAGE': message
             })
-            
     return pd.DataFrame(parsed_logs)
 
 def filter_security_alerts(df):
-    alerts = df[df['STATUS'].isin(['ERROR', 'WARN'])]
-    return alerts
+    return df[df['STATUS'].isin(['ERROR', 'WARN'])]
 
 def generate_log_summary(df):
-    summary = df['STATUS'].value_counts()
-    return summary
+    return df['STATUS'].value_counts()
 
 def detect_brute_force(df):
     errors_df = df[df['STATUS'] == 'ERROR']
@@ -42,67 +40,72 @@ def detect_brute_force(df):
     suspicious_ips = ip_counts[ip_counts >= 2]
     return suspicious_ips
 
-def save_advanced_report(summary, alerts_df, brute_force_ips, output_file='security_report.txt'):
-    with open(output_file, 'w') as file:
-        file.write("=========================================\n")
-        file.write("      ADVANCED SECURITY AUDIT REPORT     \n")
-        file.write("=========================================\n\n")
-        
-        file.write("=== LOGS SUMMARY COUNTER ===\n")
-        file.write(summary.to_string())
-        file.write("\n\n" + "="*41 + "\n\n")
-        
-        file.write("=== SUSPICIOUS IPS / BRUTE FORCE DETECTED ===\n")
-        if not brute_force_ips.empty:
-            file.write(brute_force_ips.to_string())
+# --- STREAMLIT UI LAYOUT ---
+
+# File Upload Sidebar
+st.sidebar.header("📂 Upload Log File")
+uploaded_file = st.sidebar.file_uploader("Choose a .log or .txt file", type=["log", "txt"])
+
+if uploaded_file is not None:
+    # Read uploaded file
+    file_contents = uploaded_file.getvalue().decode("utf-8").splitlines()
+    df = parse_logs_from_content(file_contents)
+
+    if not df.empty:
+        summary = generate_log_summary(df)
+        alerts_df = filter_security_alerts(df)
+        brute_force_ips = detect_brute_force(df)
+
+        # Top Metrics Section
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Total Events Logged", len(df))
+        col2.metric("Security Alerts (ERROR/WARN)", len(alerts_df))
+        col3.metric("Suspicious IPs Detected", len(brute_force_ips))
+
+        st.markdown("---")
+
+        # Two Column Layout for Chart and Brute Force Detection
+        left_col, right_col = st.columns([1, 1])
+
+        with left_col:
+            st.subheader("📊 Log Status Distribution")
+            fig, ax = plt.subplots(figsize=(6, 4))
+            colors = ['#2ecc71' if x == 'INFO' else '#f39c12' if x == 'WARN' else '#e74c3c' for x in summary.index]
+            ax.bar(summary.index, summary.values, color=colors)
+            ax.set_title('Log Status Summary', fontsize=12, fontweight='bold')
+            ax.set_ylabel('Event Count')
+            ax.grid(axis='y', linestyle='--', alpha=0.7)
+            
+            for i, value in enumerate(summary.values):
+                ax.text(i, value + 0.1, str(value), ha='center', fontweight='bold')
+                
+            st.pyplot(fig)
+
+        with right_col:
+            st.subheader("🚨 Brute Force Detection")
+            if not brute_force_ips.empty:
+                st.error("Warning: Multiple Failed Logins Detected!")
+                bf_df = brute_force_ips.reset_index()
+                bf_df.columns = ['IP Address', 'Failed Attempts']
+                st.dataframe(bf_df, use_container_width=True)
+            else:
+                st.success("No suspicious Brute Force activity detected.")
+
+        st.markdown("---")
+
+        # Detailed Security Alerts Table
+        st.subheader("⚠️ Security Alerts & Error Logs")
+        if not alerts_df.empty:
+            st.dataframe(alerts_df, use_container_width=True)
         else:
-            file.write("No Brute Force activity detected.")
-        file.write("\n\n" + "="*41 + "\n\n")
-        
-        file.write("=== SECURITY ALERTS & ERRORS ONLY ===\n")
-        file.write(alerts_df.to_string())
-        file.write("\n")
+            st.info("No ERROR or WARN status logs found.")
 
-def generate_log_chart(summary, chart_file='log_summary_chart.png'):
-    plt.figure(figsize=(8, 5))
-    colors = ['#2ecc71' if x == 'INFO' else '#f39c12' if x == 'WARN' else '#e74c3c' for x in summary.index]
-    
-    plt.bar(summary.index, summary.values, color=colors)
-    plt.title('Log Status Distribution Summary', fontsize=14, fontweight='bold')
-    plt.xlabel('Log Level Status', fontsize=12)
-    plt.ylabel('Event Count', fontsize=12)
-    plt.grid(axis='y', linestyle='--', alpha=0.7)
-    
-    for i, value in enumerate(summary.values):
-        plt.text(i, value + 0.5, str(value), ha='center', fontweight='bold')
-        
-    plt.tight_layout()
-    plt.savefig(chart_file)
-    plt.close()
+        # Complete Parsed Logs View
+        with st.expander("🔍 View Full Parsed Log Data"):
+            st.dataframe(df, use_container_width=True)
 
-# --- MAIN EXECUTION ---
-df = analyze_logs_from_file('server.log')
+    else:
+        st.warning("Could not parse any valid logs. Please check the log file format.")
 
-summary = generate_log_summary(df)
-alerts_df = filter_security_alerts(df)
-brute_force_ips = detect_brute_force(df)
-
-print("=== LOGS SUMMARY COUNTER ===")
-print(summary)
-print("\n" + "="*35 + "\n")
-
-print("=== SUSPICIOUS IPS & POSSIBLE BRUTE FORCE ===")
-if not brute_force_ips.empty:
-    print(brute_force_ips)
 else:
-    print("No suspicious IP patterns found.")
-print("\n" + "="*35 + "\n")
-
-print("=== SECURITY ALERTS & ERRORS ONLY ===")
-print(alerts_df)
-
-save_advanced_report(summary, alerts_df, brute_force_ips)
-generate_log_chart(summary)
-
-print("\n[+] Advanced Security Report saved to 'security_report.txt'")
-print("[+] Log Summary Chart generated and saved to 'log_summary_chart.png'")
+    st.info("👆 Please upload a `server.log` file using the sidebar to run the security analysis.")
