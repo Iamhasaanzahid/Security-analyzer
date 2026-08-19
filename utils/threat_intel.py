@@ -1,5 +1,5 @@
 import requests
-from ip_validator import is_public_ip
+from utils.ip_validator import is_public_ip
 
 # API Key variable (Aap Streamlit secrets ya environment variable se bhi le sakte hain)
 ABUSEIPDB_API_KEY = "YOUR_ABUSEIPDB_API_KEY_HERE"
