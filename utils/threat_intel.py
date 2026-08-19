@@ -1,8 +1,15 @@
+import os
 import requests
+import streamlit as st
 from utils.ip_validator import is_public_ip
 
-# API Key variable (Aap Streamlit secrets ya environment variable se bhi le sakte hain)
-ABUSEIPDB_API_KEY = "YOUR_ABUSEIPDB_API_KEY_HERE"
+# API Key load karne ka secure tareeqa (Secrets -> Env Variable -> Hardcoded Fallback)
+def get_api_key():
+    if hasattr(st, "secrets") and "ABUSEIPDB_API_KEY" in st.secrets:
+        return st.secrets["ABUSEIPDB_API_KEY"]
+    return os.getenv("ABUSEIPDB_API_KEY", "YOUR_ABUSEIPDB_API_KEY_HERE")
+
+ABUSEIPDB_API_KEY = get_api_key()
 
 def check_ip_reputation(ip_str):
     """
@@ -10,7 +17,7 @@ def check_ip_reputation(ip_str):
     """
     ip_clean = str(ip_str).strip()
     
-    # Step 1: Filter out Private/RFC1918/Local IPs
+    # Step 1: Filter out Private / RFC 1918 / Loopback IPs
     if not is_public_ip(ip_clean):
         return {
             "status": "Skipped",
@@ -20,6 +27,18 @@ def check_ip_reputation(ip_str):
             "country": "Local/Private",
             "isp": "Internal Network",
             "message": "Private IP (RFC 1918) - No threat lookup required."
+        }
+
+    # API key check
+    if not ABUSEIPDB_API_KEY or ABUSEIPDB_API_KEY == "YOUR_ABUSEIPDB_API_KEY_HERE":
+        return {
+            "status": "Warning",
+            "is_public": True,
+            "abuse_score": 0,
+            "reports": 0,
+            "country": "N/A",
+            "isp": "N/A",
+            "message": "AbuseIPDB API key not configured."
         }
 
     # Step 2: Query AbuseIPDB for Public IP
