@@ -1,5 +1,6 @@
 import random
 import smtplib
+import bcrypt
 from email.message import EmailMessage
 
 # इन मेमोरी स्टोरेज (डेटाबेस की जगह)
@@ -30,7 +31,7 @@ def initiate_registration(username, email, password):
     code = generate_verification_code()
     pending_verifications[email] = {
         "username": username,
-        "password": password,
+        "password": bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8
         "code": code,
     }
     send_verification_email(email, code)
