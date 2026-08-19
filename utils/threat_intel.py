@@ -1,15 +1,9 @@
 import os
 import requests
-import streamlit as st
 from utils.ip_validator import is_public_ip
 
-# API Key load karne ka secure tareeqa (Secrets -> Env Variable -> Hardcoded Fallback)
-def get_api_key():
-    if hasattr(st, "secrets") and "ABUSEIPDB_API_KEY" in st.secrets:
-        return st.secrets["ABUSEIPDB_API_KEY"]
-    return os.getenv("ABUSEIPDB_API_KEY", "YOUR_ABUSEIPDB_API_KEY_HERE")
-
-ABUSEIPDB_API_KEY = get_api_key()
+# Yahan apni API Key daal dein
+ABUSEIPDB_API_KEY = os.getenv("ABUSEIPDB_API_KEY", "YOUR_ABUSEIPDB_API_KEY_HERE")
 
 def check_ip_reputation(ip_str):
     """
