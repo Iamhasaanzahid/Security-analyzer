@@ -1,8 +1,24 @@
+import sys
+from pathlib import Path
 import re
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
 import streamlit as st
+
+# Project root path ko system path mein add karein taake subfolders access ho sakein
+ROOT_DIR = Path(__file__).resolve().parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.append(str(ROOT_DIR))
+
+# Do alag alag folders se direct import (Apne folder names ke mutabiq adjust karein agar mukhtalif hon)
+try:
+    from threat_intel_dir.threat_intel import check_ip_reputation
+except ModuleNotFoundError:
+    try:
+        from threat_intel.threat_intel import check_ip_reputation
+    except ModuleNotFoundError:
+        from threat_intel import check_ip_reputation
 
 # Streamlit Page Setup
 st.set_page_config(page_title="Security Log & Threat Analyzer", layout="wide", page_icon="🛡️")
@@ -16,7 +32,8 @@ st.markdown("Upload your server log files below to analyze security events, dete
 @st.cache_data(ttl=3600)
 def get_ip_location_details(ip):
     """Fetch country, city, and ISP for public IPs using IP-API."""
-    if ip.startswith(('192.168.', '10.', '172.16.', '127.')) or ip == 'N/A':
+    intel = check_ip_reputation(ip)
+    if not intel.get("is_public"):
         return "Local/Private IP", "Local", "Internal Network"
     try:
         response = requests.get(f"http://ip-api.com/json/{ip}?fields=country,city,isp", timeout=3)
@@ -67,10 +84,17 @@ def detect_brute_force(df):
         bf_df = suspicious_ips.reset_index()
         bf_df.columns = ['IP Address', 'Failed Attempts']
         
+        # 1. Location Data Fetch
         location_data = bf_df['IP Address'].apply(get_ip_location_details)
         bf_df['Country'] = [loc[0] for loc in location_data]
         bf_df['City'] = [loc[1] for loc in location_data]
         bf_df['ISP / Host'] = [loc[2] for loc in location_data]
+        
+        # 2. Threat Intel & AbuseIPDB Score Enrichment
+        intel_data = bf_df['IP Address'].apply(check_ip_reputation)
+        bf_df['Abuse Score (%)'] = [f"{item.get('abuse_score', 0)}%" for item in intel_data]
+        bf_df['Abuse Reports'] = [item.get('reports', 0) for item in intel_data]
+        bf_df['IP Type'] = ["Public" if item.get('is_public') else "Private (RFC 1918)" for item in intel_data]
         
         return bf_df
         
@@ -130,11 +154,20 @@ if uploaded_file is not None:
             st.pyplot(fig)
 
         with right_col:
-            st.subheader("🚨 Brute Force Detection")
+            st.subheader("🚨 Brute Force & Threat Intelligence")
             if not brute_force_ips.empty:
-                st.error("🚨 Warning: Multiple Failed Logins / Errors Detected!")
+                st.error("🚨 Warning: Suspicious Activity Detected!")
                 st.dataframe(brute_force_ips, use_container_width=True)
                 
+                # High Threat Alert if Abuse Score >= 50%
+                for _, row in brute_force_ips.iterrows():
+                    try:
+                        score_num = int(str(row['Abuse Score (%)']).replace('%', ''))
+                        if score_num >= 50:
+                            st.warning(f"⚠️ High-Risk IP Flagged: **{row['IP Address']}** (Abuse Confidence: {row['Abuse Score (%)']})")
+                    except ValueError:
+                        pass
+
                 # Download CSV Button for Brute Force Threat Report
                 bf_csv = convert_df_to_csv(brute_force_ips)
                 st.download_button(
