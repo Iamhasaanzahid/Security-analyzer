@@ -11,7 +11,7 @@ A high-performance Python-based Log Security Analyzer designed for SOC Analysts 
 - **Visual Data Analytics:** Automatically generates a color-coded bar chart (`log_summary_chart.png`) visualizing log event distributions.
 - **Incident Filtering:** Isolates critical security events (`ERROR` & `WARN`) for accelerated incident response.
 - **Automated Security Reporting:** Saves neatly formatted security audit summaries directly into `security_report.txt`.
--**Secure Authentication System:** Implements user registration with email verification, secure password hashing using bcrypt, and a login functionality to verify credentials.
+- **Secure Authentication System:** Implements user registration with email verification, secure password hashing using bcrypt, and a login functionality to verify credentials.
 ---
 
 ## 🛠️ Tech Stack & Requirements
