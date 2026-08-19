@@ -50,3 +50,12 @@ def verify_account(email, entered_code):
         return True
     print("Invalid verification code.")
     return False
+    
+def login_user(email, password):
+    record = users.get(email)
+    if record and bcrypt.checkpw(password.encode('utf-8'), record['password'].encode('utf-8')):
+        print("Login successful.")
+        return True
+    print("Invalid email or password.")
+    return False
+    
