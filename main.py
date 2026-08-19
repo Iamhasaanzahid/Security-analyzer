@@ -11,14 +11,8 @@ ROOT_DIR = Path(__file__).resolve().parent
 if str(ROOT_DIR) not in sys.path:
     sys.path.append(str(ROOT_DIR))
 
-# Do alag alag folders se direct import (Apne folder names ke mutabiq adjust karein agar mukhtalif hon)
-try:
-    from threat_intel_dir.threat_intel import check_ip_reputation
-except ModuleNotFoundError:
-    try:
-        from threat_intel.threat_intel import check_ip_reputation
-    except ModuleNotFoundError:
-        from threat_intel import check_ip_reputation
+# Utils folder se threat_intel import
+from utils.threat_intel import check_ip_reputation
 
 # Streamlit Page Setup
 st.set_page_config(page_title="Security Log & Threat Analyzer", layout="wide", page_icon="🛡️")
